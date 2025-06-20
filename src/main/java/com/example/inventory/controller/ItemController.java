@@ -1,6 +1,5 @@
 package com.example.inventory.controller;
 
-import com.example.inventory.dto.ApiResponse;
 import com.example.inventory.dto.CreateItemRequest;
 import com.example.inventory.dto.ItemDto;
 import com.example.inventory.service.ItemService;
@@ -12,50 +11,50 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/items")
+@RequestMapping("/api/items")
 @RequiredArgsConstructor
 public class ItemController {
     private final ItemService itemService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<ItemDto>> createItem(@Valid @RequestBody CreateItemRequest request) {
+    public ResponseEntity<ItemDto> createItem(@Valid @RequestBody CreateItemRequest request) {
         ItemDto item = itemService.createItem(request);
-        return ResponseEntity.ok(ApiResponse.success(item, "Item created successfully"));
+        return ResponseEntity.status(201).body(item);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<ItemDto>> getItemById(@PathVariable Long id) {
+    public ResponseEntity<ItemDto> getItemById(@PathVariable Long id) {
         return itemService.getItemById(id)
-                .map(item -> ResponseEntity.ok(ApiResponse.success(item)))
+                .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/sku/{sku}")
-    public ResponseEntity<ApiResponse<ItemDto>> getItemBySku(@PathVariable String sku) {
+    public ResponseEntity<ItemDto> getItemBySku(@PathVariable String sku) {
         return itemService.getItemBySku(sku)
-                .map(item -> ResponseEntity.ok(ApiResponse.success(item)))
+                .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<ItemDto>>> getAllItems() {
-        return ResponseEntity.ok(ApiResponse.success(itemService.getAllItems()));
+    public ResponseEntity<List<ItemDto>> getAllItems() {
+        return ResponseEntity.ok(itemService.getAllItems());
     }
 
     @GetMapping("/available")
-    public ResponseEntity<ApiResponse<List<ItemDto>>> getAvailableItems() {
-        return ResponseEntity.ok(ApiResponse.success(itemService.getAvailableItems()));
+    public ResponseEntity<List<ItemDto>> getAvailableItems() {
+        return ResponseEntity.ok(itemService.getAvailableItems());
     }
 
     @PostMapping("/{id}/supply")
-    public ResponseEntity<ApiResponse<ItemDto>> addSupply(@PathVariable Long id, @RequestParam Integer quantity) {
+    public ResponseEntity<ItemDto> addSupply(@PathVariable Long id, @RequestParam Integer quantity) {
         ItemDto item = itemService.addSupply(id, quantity);
-        return ResponseEntity.ok(ApiResponse.success(item, "Supply added successfully"));
+        return ResponseEntity.ok(item);
     }
 
     @GetMapping("/{id}/availability")
-    public ResponseEntity<ApiResponse<Boolean>> checkAvailability(@PathVariable Long id, @RequestParam Integer quantity) {
+    public ResponseEntity<Boolean> checkAvailability(@PathVariable Long id, @RequestParam Integer quantity) {
         boolean available = itemService.checkAvailability(id, quantity);
-        return ResponseEntity.ok(ApiResponse.success(available));
+        return ResponseEntity.ok(available);
     }
 } 
